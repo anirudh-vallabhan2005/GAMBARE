@@ -38,6 +38,26 @@ jobs:
           mkdir source
           unzip GAMBARE-phone-build-package.zip -d source
 
+      - name: Align Java and Kotlin targets
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("source/app/build.gradle.kts")
+          s = p.read_text()
+          marker = "    buildFeatures { compose = true }"
+          replacement = """    compileOptions {
+                  sourceCompatibility = JavaVersion.VERSION_17
+                  targetCompatibility = JavaVersion.VERSION_17
+              }
+              kotlinOptions {
+                  jvmTarget = "17"
+              }
+              buildFeatures { compose = true }"""
+          if marker not in s:
+              raise SystemExit("Could not find Gradle configuration marker")
+          p.write_text(s.replace(marker, replacement, 1))
+          PY
+
       - name: Build APK
         working-directory: source
         run: gradle --no-daemon assembleDebug
@@ -47,5 +67,6 @@ jobs:
         with:
           name: GAMBARE-APK
           path: source/app/build/outputs/apk/debug/app-debug.apk
+
 
 
