@@ -48,3 +48,4 @@ jobs:
           name: GAMBARE-APK
           path: source/app/build/outputs/apk/debug/app-debug.apk
 
+
